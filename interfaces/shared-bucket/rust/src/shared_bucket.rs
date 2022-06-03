@@ -662,7 +662,7 @@ pub trait Customers {
         &self,
         ctx: &Context,
         arg: &TS,
-    ) -> RpcResult<CreateCustomerReply>;
+    ) -> RpcResult<FindCustomerReply>;
 }
 
 /// CustomersReceiver receives messages defined in the Customers service trait
@@ -778,7 +778,7 @@ impl<T: Transport + std::marker::Sync + std::marker::Send> Customers for Custome
         &self,
         ctx: &Context,
         arg: &TS,
-    ) -> RpcResult<CreateCustomerReply> {
+    ) -> RpcResult<FindCustomerReply> {
         let buf = wasmbus_rpc::common::serialize(&arg.to_string())?;
 
         let resp = self
@@ -793,8 +793,8 @@ impl<T: Transport + std::marker::Sync + std::marker::Send> Customers for Custome
             )
             .await?;
 
-        let value: CreateCustomerReply = wasmbus_rpc::common::deserialize(&resp)
-            .map_err(|e| RpcError::Deser(format!("'{}': CreateCustomerReply", e)))?;
+        let value: FindCustomerReply = wasmbus_rpc::common::deserialize(&resp)
+            .map_err(|e| RpcError::Deser(format!("'{}': FindCustomerReply", e)))?;
         Ok(value)
     }
 }

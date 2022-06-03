@@ -11,6 +11,7 @@
 [[models]]
 path = "."
 files = [
+    "shared-bucket.smithy",
     "customers.smithy", 
     "service-vendors.smithy"
 ]

@@ -1,11 +1,4 @@
-// customers.smithy
-//
-
-// Tell the code generator how to reference symbols defined in this namespace
-metadata package = [ { namespace: "com.orange.sharedbucket", crate: "customers" } ]
-
 namespace com.orange.sharedbucket
-
 use org.wasmcloud.model#wasmbus
 
 /// Description of SharedBucket service
