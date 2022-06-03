@@ -1,0 +1,82 @@
+name: Customers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "actors/customers/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "actors/customers/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  WASH_ISSUER_KEY: ${{ secrets.WASMCLOUD_ACCOUNT_OFFICIAL }}
+
+jobs:
+  actors_build_check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        working-directory:
+          - actors/customers
+        include:
+          - working-directory: actors/customers
+            artifact-name: customers
+    steps:
+      - uses: actions/checkout@v2
+      - uses: wasmcloud/common-actions/install-wash@main
+
+      - name: Add wasm32-unknown-unknown
+        run: rustup target add wasm32-unknown-unknown
+
+      - id: rust-check-action
+        uses: wasmcloud/common-actions/rust-check@main
+        with:
+          working-directory: ${{ matrix.working-directory }}
+          build-options: "--release"
+          clippy-options: "--release"
+          # The `--doc` is required for wasm, as cargo cannot execute wasm tests by default
+          test-options: "--release --doc"
+
+      # Note: This step is only required because secrets cannot be used in the `include` block
+      - name: Set wash subject key (customers)
+        if: ${{ matrix.working-directory == 'actors/customers' }}
+        run: echo "WASH_SUBJECT_KEY=${{ secrets.WASMCLOUD_SHARED_BUCKET_CUSTOMERS }}" > $GITHUB_ENV
+
+      - name: Build wasmcloud actor
+        if: startswith(github.ref, 'refs/tags/') # Only run on tag push
+        run: make
+        working-directory: ${{ matrix.working-directory }}
+
+      - name: Upload signed actor to GH Actions
+        if: startswith(github.ref, 'refs/tags/') # Only run on tag push
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.working-directory }}/build/*.wasm
+
+  github_release:
+    if: startswith(github.ref, 'refs/tags/') # Only run on tag push
+    needs: actors_build_check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact-name: [clinicapi, customers, vets, visits, ui]
+    steps:
+      - name: Download signed actor
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: build
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/*.wasm
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          draft: false
