@@ -11,7 +11,8 @@
 [[models]]
 path = "."
 files = [
-    "customers.smithy"
+    "customers.smithy", 
+    "service-vendors.smithy"
 ]
 
 [[models]]

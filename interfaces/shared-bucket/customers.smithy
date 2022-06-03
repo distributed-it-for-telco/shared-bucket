@@ -22,7 +22,7 @@ operation CreateCustomer {
 
 operation FindCustomer {
   input: String,
-  output: CreateCustomerReply
+  output: FindCustomerReply
 }
 
 structure Customer {

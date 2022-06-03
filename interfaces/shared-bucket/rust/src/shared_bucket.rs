@@ -405,6 +405,250 @@ pub fn decode_find_customer_reply(
     };
     Ok(__result)
 }
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct Service {
+    #[serde(default)]
+    pub id: String,
+}
+
+// Encode Service as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_service<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &Service,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(1)?;
+    e.str("id")?;
+    e.str(&val.id)?;
+    Ok(())
+}
+
+// Decode Service from cbor input stream
+#[doc(hidden)]
+pub fn decode_service(d: &mut wasmbus_rpc::cbor::Decoder<'_>) -> Result<Service, RpcError> {
+    let __result = {
+        let mut id: Option<String> = None;
+
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct Service, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                match __i {
+                    0 => id = Some(d.str()?.to_string()),
+                    _ => d.skip()?,
+                }
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                match d.str()? {
+                    "id" => id = Some(d.str()?.to_string()),
+                    _ => d.skip()?,
+                }
+            }
+        }
+        Service {
+            id: if let Some(__x) = id {
+                __x
+            } else {
+                return Err(RpcError::Deser("missing field Service.id (#0)".to_string()));
+            },
+        }
+    };
+    Ok(__result)
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ServiceOrder {
+    #[serde(default)]
+    pub amount: String,
+    pub service: Service,
+}
+
+// Encode ServiceOrder as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_service_order<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &ServiceOrder,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(2)?;
+    e.str("amount")?;
+    e.str(&val.amount)?;
+    e.str("service")?;
+    encode_service(e, &val.service)?;
+    Ok(())
+}
+
+// Decode ServiceOrder from cbor input stream
+#[doc(hidden)]
+pub fn decode_service_order(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<ServiceOrder, RpcError> {
+    let __result = {
+        let mut amount: Option<String> = None;
+        let mut service: Option<Service> = None;
+
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct ServiceOrder, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                match __i {
+                    0 => amount = Some(d.str()?.to_string()),
+                    1 => {
+                        service = Some(decode_service(d).map_err(|e| {
+                            format!("decoding 'com.orange.sharedbucket#Service': {}", e)
+                        })?)
+                    }
+                    _ => d.skip()?,
+                }
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                match d.str()? {
+                    "amount" => amount = Some(d.str()?.to_string()),
+                    "service" => {
+                        service = Some(decode_service(d).map_err(|e| {
+                            format!("decoding 'com.orange.sharedbucket#Service': {}", e)
+                        })?)
+                    }
+                    _ => d.skip()?,
+                }
+            }
+        }
+        ServiceOrder {
+            amount: if let Some(__x) = amount {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field ServiceOrder.amount (#0)".to_string(),
+                ));
+            },
+
+            service: if let Some(__x) = service {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field ServiceOrder.service (#1)".to_string(),
+                ));
+            },
+        }
+    };
+    Ok(__result)
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct ServiceUsage {
+    #[serde(default)]
+    pub client: String,
+    pub service: Service,
+}
+
+// Encode ServiceUsage as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_service_usage<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &ServiceUsage,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(2)?;
+    e.str("client")?;
+    e.str(&val.client)?;
+    e.str("service")?;
+    encode_service(e, &val.service)?;
+    Ok(())
+}
+
+// Decode ServiceUsage from cbor input stream
+#[doc(hidden)]
+pub fn decode_service_usage(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<ServiceUsage, RpcError> {
+    let __result = {
+        let mut client: Option<String> = None;
+        let mut service: Option<Service> = None;
+
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct ServiceUsage, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                match __i {
+                    0 => client = Some(d.str()?.to_string()),
+                    1 => {
+                        service = Some(decode_service(d).map_err(|e| {
+                            format!("decoding 'com.orange.sharedbucket#Service': {}", e)
+                        })?)
+                    }
+                    _ => d.skip()?,
+                }
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                match d.str()? {
+                    "client" => client = Some(d.str()?.to_string()),
+                    "service" => {
+                        service = Some(decode_service(d).map_err(|e| {
+                            format!("decoding 'com.orange.sharedbucket#Service': {}", e)
+                        })?)
+                    }
+                    _ => d.skip()?,
+                }
+            }
+        }
+        ServiceUsage {
+            client: if let Some(__x) = client {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field ServiceUsage.client (#0)".to_string(),
+                ));
+            },
+
+            service: if let Some(__x) = service {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field ServiceUsage.service (#1)".to_string(),
+                ));
+            },
+        }
+    };
+    Ok(__result)
+}
 /// Description of SharedBucket service
 /// wasmbus.actorReceive
 #[async_trait]
@@ -551,6 +795,147 @@ impl<T: Transport + std::marker::Sync + std::marker::Send> Customers for Custome
 
         let value: CreateCustomerReply = wasmbus_rpc::common::deserialize(&resp)
             .map_err(|e| RpcError::Deser(format!("'{}': CreateCustomerReply", e)))?;
+        Ok(value)
+    }
+}
+
+/// Description of SharedBucket service
+/// wasmbus.actorReceive
+#[async_trait]
+pub trait ServiceVendors {
+    async fn authorize_service_usage(&self, ctx: &Context, arg: &ServiceUsage)
+        -> RpcResult<String>;
+    async fn buy_service(&self, ctx: &Context, arg: &ServiceOrder) -> RpcResult<String>;
+}
+
+/// ServiceVendorsReceiver receives messages defined in the ServiceVendors service trait
+/// Description of SharedBucket service
+#[doc(hidden)]
+#[async_trait]
+pub trait ServiceVendorsReceiver: MessageDispatch + ServiceVendors {
+    async fn dispatch<'disp__, 'ctx__, 'msg__>(
+        &'disp__ self,
+        ctx: &'ctx__ Context,
+        message: &Message<'msg__>,
+    ) -> Result<Message<'msg__>, RpcError> {
+        match message.method {
+            "AuthorizeServiceUsage" => {
+                let value: ServiceUsage = wasmbus_rpc::common::deserialize(&message.arg)
+                    .map_err(|e| RpcError::Deser(format!("'ServiceUsage': {}", e)))?;
+
+                let resp = ServiceVendors::authorize_service_usage(self, ctx, &value).await?;
+                let buf = wasmbus_rpc::common::serialize(&resp)?;
+
+                Ok(Message {
+                    method: "ServiceVendors.AuthorizeServiceUsage",
+                    arg: Cow::Owned(buf),
+                })
+            }
+            "BuyService" => {
+                let value: ServiceOrder = wasmbus_rpc::common::deserialize(&message.arg)
+                    .map_err(|e| RpcError::Deser(format!("'ServiceOrder': {}", e)))?;
+
+                let resp = ServiceVendors::buy_service(self, ctx, &value).await?;
+                let buf = wasmbus_rpc::common::serialize(&resp)?;
+
+                Ok(Message {
+                    method: "ServiceVendors.BuyService",
+                    arg: Cow::Owned(buf),
+                })
+            }
+            _ => Err(RpcError::MethodNotHandled(format!(
+                "ServiceVendors::{}",
+                message.method
+            ))),
+        }
+    }
+}
+
+/// ServiceVendorsSender sends messages to a ServiceVendors service
+/// Description of SharedBucket service
+/// client for sending ServiceVendors messages
+#[derive(Debug)]
+pub struct ServiceVendorsSender<T: Transport> {
+    transport: T,
+}
+
+impl<T: Transport> ServiceVendorsSender<T> {
+    /// Constructs a ServiceVendorsSender with the specified transport
+    pub fn via(transport: T) -> Self {
+        Self { transport }
+    }
+
+    pub fn set_timeout(&self, interval: std::time::Duration) {
+        self.transport.set_timeout(interval);
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl<'send> ServiceVendorsSender<wasmbus_rpc::provider::ProviderTransport<'send>> {
+    /// Constructs a Sender using an actor's LinkDefinition,
+    /// Uses the provider's HostBridge for rpc
+    pub fn for_actor(ld: &'send wasmbus_rpc::core::LinkDefinition) -> Self {
+        Self {
+            transport: wasmbus_rpc::provider::ProviderTransport::new(ld, None),
+        }
+    }
+}
+#[cfg(target_arch = "wasm32")]
+impl ServiceVendorsSender<wasmbus_rpc::actor::prelude::WasmHost> {
+    /// Constructs a client for actor-to-actor messaging
+    /// using the recipient actor's public key
+    pub fn to_actor(actor_id: &str) -> Self {
+        let transport =
+            wasmbus_rpc::actor::prelude::WasmHost::to_actor(actor_id.to_string()).unwrap();
+        Self { transport }
+    }
+}
+#[async_trait]
+impl<T: Transport + std::marker::Sync + std::marker::Send> ServiceVendors
+    for ServiceVendorsSender<T>
+{
+    #[allow(unused)]
+    async fn authorize_service_usage(
+        &self,
+        ctx: &Context,
+        arg: &ServiceUsage,
+    ) -> RpcResult<String> {
+        let buf = wasmbus_rpc::common::serialize(arg)?;
+
+        let resp = self
+            .transport
+            .send(
+                ctx,
+                Message {
+                    method: "ServiceVendors.AuthorizeServiceUsage",
+                    arg: Cow::Borrowed(&buf),
+                },
+                None,
+            )
+            .await?;
+
+        let value: String = wasmbus_rpc::common::deserialize(&resp)
+            .map_err(|e| RpcError::Deser(format!("'{}': String", e)))?;
+        Ok(value)
+    }
+    #[allow(unused)]
+    async fn buy_service(&self, ctx: &Context, arg: &ServiceOrder) -> RpcResult<String> {
+        let buf = wasmbus_rpc::common::serialize(arg)?;
+
+        let resp = self
+            .transport
+            .send(
+                ctx,
+                Message {
+                    method: "ServiceVendors.BuyService",
+                    arg: Cow::Borrowed(&buf),
+                },
+                None,
+            )
+            .await?;
+
+        let value: String = wasmbus_rpc::common::deserialize(&resp)
+            .map_err(|e| RpcError::Deser(format!("'{}': String", e)))?;
         Ok(value)
     }
 }
