@@ -466,10 +466,15 @@ dependencies = [
 name = "customers"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "form_urlencoded",
  "futures 0.3.21",
+ "serde",
+ "serde_json",
+ "shared-bucket",
+ "uuid 1.1.1",
  "wasmbus-rpc",
- "wasmcloud-interface-httpserver",
+ "wasmcloud-interface-keyvalue",
 ]
 
 [[package]]
@@ -787,8 +792,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9be70c98951c83b8d2f8f60d7065fa6d5146873094452a1008da8c2f1e4205ad"
 dependencies = [
  "cfg-if 1.0.0",
+ "js-sys",
  "libc",
  "wasi 0.10.2+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2014,6 +2021,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "shared-bucket"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "serde",
+ "serde_bytes",
+ "wasmbus-rpc",
+ "weld-codegen",
+]
+
+[[package]]
 name = "signal-hook-registry"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2475,6 +2493,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "uuid"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c6d5d669b51467dcf7b2f1a796ce0f955f05f01cafda6c19d6e95f730df29238"
+dependencies = [
+ "getrandom 0.2.6",
+]
+
+[[package]]
 name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2650,19 +2677,20 @@ dependencies = [
  "tracing",
  "tracing-futures",
  "tracing-subscriber",
- "uuid",
+ "uuid 0.8.2",
  "wascap",
  "wasmbus-macros",
  "weld-codegen",
 ]
 
 [[package]]
-name = "wasmcloud-interface-httpserver"
-version = "0.5.0"
+name = "wasmcloud-interface-keyvalue"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e55273782d229e4eba751fe5150b1d5158e23047b9f75b3e4c7c260c522193f"
+checksum = "0a568873f48030a72933c7c2dfc6f68dedb885b76cef3cd212747e6e5876c2be"
 dependencies = [
  "async-trait",
+ "log",
  "serde",
  "serde_bytes",
  "serde_json",

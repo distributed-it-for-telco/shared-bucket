@@ -40,3 +40,42 @@ structure CreateCustomerReply {
 structure FindCustomerReply {
   customer: Customer
 }
+
+@wasmbus( actorReceive: true )
+service CustomerGroups {
+  version: "0.1",
+  operations: [ CreateCustomerGroup, AddCustomer, ListCustomers ]
+}
+
+operation CreateCustomerGroup {
+  input: CustomerGroup,
+  output: CreateCustomerGroupReply
+}
+
+operation AddCustomer {
+  input: String,
+  output: AddCustomerReply
+}
+
+operation ListCustomers {
+  input: String,
+  output: ListCustomersReply
+}
+
+structure CustomerGroup {
+  @required
+  name: String,
+}
+
+structure CreateCustomerGroupReply {
+  @required
+  success: Boolean,
+}
+
+structure AddCustomerReply {
+  customer: Customer
+}
+
+list ListCustomersReply {
+  member: Customer
+}

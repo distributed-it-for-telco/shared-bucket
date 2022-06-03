@@ -1,31 +1,93 @@
+use shared_bucket::{AddCustomerReply, CreateCustomerGroupReply, CreateCustomerReply, Customer, CustomerGroup, CustomerGroups, Customers, FindCustomerReply, ListCustomersReply};
+use uuid::Uuid;
 use wasmbus_rpc::actor::prelude::*;
-use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, HttpServerReceiver};
+use wasmcloud_interface_keyvalue::{KeyValue, KeyValueSender, SetRequest};
+
 
 #[derive(Debug, Default, Actor, HealthResponder)]
-#[services(Actor, HttpServer)]
+#[services(Actor)]
 struct CustomersActor {}
 
-/// Implementation of HttpServer trait methods
-#[async_trait]
-impl HttpServer for CustomersActor {
+impl CustomersActor {
+    async fn create(ctx: &Context, customer: &Customer) -> anyhow::Result<String> {
 
-    /// Returns a greeting, "Hello World", in the response body.
-    /// If the request contains a query parameter 'name=NAME', the
-    /// response is changed to "Hello NAME"
-    async fn handle_request(
-        &self,
-        _ctx: &Context,
-        req: &HttpRequest,
-    ) -> std::result::Result<HttpResponse, RpcError> {
-        let text = form_urlencoded::parse(req.query_string.as_bytes())
-            .find(|(n, _)| n == "name")
-            .map(|(_, v)| v.to_string())
-            .unwrap_or_else(|| "World".to_string());
+        let id = Uuid::new_v4();
 
-        Ok(HttpResponse {
-            body: format!("Hello {}", text).as_bytes().to_vec(),
-            ..Default::default()
+        let request = SetRequest {
+            key: id.to_string(),
+            value: serde_json::to_string(customer)?,
+            expires: 0
+        };
+
+        KeyValueSender::new().set(ctx, &request).await?;
+
+        Ok(id.to_string())
+    }
+
+    async fn find(ctx: &Context, id: String) -> anyhow::Result<Option<Customer>> {
+
+        let customer = KeyValueSender::new().get(ctx, &id).await?;
+
+        Ok(if customer.exists {
+            Some(serde_json::from_str(&customer.value)?)
+        } else {
+            None
         })
+    }
+}
+
+/// Implementation of Customers trait methods
+#[async_trait]
+impl Customers for CustomersActor {
+    async fn create_customer(&self, ctx: &Context, arg: &Customer) -> RpcResult<CreateCustomerReply> {
+
+        let reply = match Self::create(ctx, arg).await {
+            Ok(id) => {
+                CreateCustomerReply {
+                    id,
+                    success: false
+                }
+            },
+            Err(_) => {
+                CreateCustomerReply {
+                    id: "".to_string(),
+                    success: false
+                }
+            }
+        };
+
+        Ok(reply)
+    }
+
+    async fn find_customer<TS: ToString + ?Sized + Sync>(&self, ctx: &Context, arg: &TS) -> RpcResult<FindCustomerReply> {
+
+        match Self::find(ctx, arg.to_string()).await {
+            Ok(customer) => {
+                Ok(FindCustomerReply {
+                    customer,
+                })
+            }
+            Err(_) => {
+                Ok(FindCustomerReply {
+                    customer: None
+                })
+            }
+        }
+    }
+}
+
+#[async_trait]
+impl CustomerGroups for CustomersActor {
+    async fn create_customer_group(&self, ctx: &Context, arg: &CustomerGroup) -> RpcResult<CreateCustomerGroupReply> {
+        todo!()
+    }
+
+    async fn add_customer<TS: ToString + ?Sized + Sync>(&self, ctx: &Context, arg: &TS) -> RpcResult<AddCustomerReply> {
+        todo!()
+    }
+
+    async fn list_customers<TS: ToString + ?Sized + Sync>(&self, ctx: &Context, arg: &TS) -> RpcResult<ListCustomersReply> {
+        todo!()
     }
 }
 
