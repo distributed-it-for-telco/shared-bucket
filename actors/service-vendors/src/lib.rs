@@ -3,11 +3,11 @@ use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, Http
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor, HttpServer)]
-struct ServiceVendorActor {}
+struct ServiceVendorsActor {}
 
 /// Implementation of HttpServer trait methods
 #[async_trait]
-impl HttpServer for ServiceVendorActor {
+impl HttpServer for ServiceVendorsActor {
 
     /// Returns a greeting, "Hello World", in the response body.
     /// If the request contains a query parameter 'name=NAME', the
