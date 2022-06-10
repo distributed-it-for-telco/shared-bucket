@@ -20,7 +20,6 @@ dependencies = [
  "futures 0.3.21",
  "shared-bucket",
  "wasmbus-rpc",
- "wasmcloud-interface-httpserver",
  "wasmcloud-interface-logging",
 ]
 
@@ -2666,20 +2665,6 @@ dependencies = [
  "uuid",
  "wascap",
  "wasmbus-macros",
- "weld-codegen",
-]
-
-[[package]]
-name = "wasmcloud-interface-httpserver"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e55273782d229e4eba751fe5150b1d5158e23047b9f75b3e4c7c260c522193f"
-dependencies = [
- "async-trait",
- "serde",
- "serde_bytes",
- "serde_json",
- "wasmbus-rpc",
  "weld-codegen",
 ]
 
