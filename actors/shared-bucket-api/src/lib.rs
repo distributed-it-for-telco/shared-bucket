@@ -4,8 +4,8 @@ use wasmbus_rpc::actor::prelude::*;
 use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, HttpServerReceiver};
 use wasmcloud_interface_logging::debug;
 
-const CUSTOMERS_ACTOR: &str = "shared_bucket/customers"; //TODO not sure about the prefix here
-const SERVICE_VENDORS_ACTOR: &str = "shared_bucket/service_vendors"; //TODO not sure about anything here
+const CUSTOMERS_ACTOR: &str = "customers"; //TODO not sure about the prefix here
+const SERVICE_VENDORS_ACTOR: &str = "service_vendors"; //TODO not sure about anything here
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor, HttpServer)]
