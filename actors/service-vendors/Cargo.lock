@@ -18,6 +18,7 @@ version = "0.1.0"
 dependencies = [
  "form_urlencoded",
  "futures 0.3.21",
+ "shared-bucket",
  "wasmbus-rpc",
  "wasmcloud-interface-httpserver",
 ]
@@ -2011,6 +2012,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "900fba806f70c630b0a382d0d825e17a0f19fcd059a2ade1ff237bcddf446b31"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shared-bucket"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "serde",
+ "serde_bytes",
+ "wasmbus-rpc",
+ "weld-codegen",
 ]
 
 [[package]]

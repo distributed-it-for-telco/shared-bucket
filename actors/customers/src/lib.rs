@@ -4,7 +4,7 @@ use shared_bucket::{
 };
 use uuid::Uuid;
 use wasmbus_rpc::actor::prelude::*;
-use wasmcloud_interface_keyvalue::{KeyValue, KeyValueSender, SetRequest};
+use wasmcloud_interface_keyvalue::{KeyValue, KeyValueSender, SetRequest, GetResponse};
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor)]
@@ -33,7 +33,19 @@ impl CustomersActor {
         } else {
             None
         })
+
+        // IDIOMATIC ALTERNATIVE //TODO does not compile :)
+
+        // match KeyValueSender::new().get(ctx, &id).await {
+        //     Ok(GetResponse { exists: true, value: value } ) => Some(serde_json::from_str(&customer.value)?),
+        //     Ok(GetResponse { exists: false, ..} ) => None,
+        //     Err(RpcError::NotImplemented) => None, //TODO send error
+        //     _ => None //TODO send error
+        // }
     }
+
+
+
 }
 
 /// Implementation of Customers trait methods
