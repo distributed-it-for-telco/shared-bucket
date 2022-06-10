@@ -13,6 +13,7 @@ futures = "0.3"
 form_urlencoded = "1.0"
 wasmbus-rpc = "0.8.2"
 wasmcloud-interface-httpserver = "0.5"
+wasmcloud-interface-logging = "0.5"
 shared-bucket = { path = "../../interfaces/shared-bucket/rust" }
 
 [profile.release]
