@@ -475,6 +475,7 @@ dependencies = [
  "uuid 1.1.1",
  "wasmbus-rpc",
  "wasmcloud-interface-keyvalue",
+ "wasmcloud-interface-logging",
 ]
 
 [[package]]
@@ -2691,6 +2692,22 @@ checksum = "0a568873f48030a72933c7c2dfc6f68dedb885b76cef3cd212747e6e5876c2be"
 dependencies = [
  "async-trait",
  "log",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+ "wasmbus-rpc",
+ "weld-codegen",
+]
+
+[[package]]
+name = "wasmcloud-interface-logging"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8e006f612a69ff5de663dd3e06a55fe3a3e85cc656ab61e88c78bc0ea7740fe"
+dependencies = [
+ "async-trait",
+ "cfg-if 1.0.0",
+ "futures 0.3.21",
  "serde",
  "serde_bytes",
  "serde_json",
