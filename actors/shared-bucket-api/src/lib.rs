@@ -1,23 +1,27 @@
+use serde::{Deserialize, Serialize};
+use shared_bucket::{Customer, Customers, CustomersSender};
 use wasmbus_rpc::actor::prelude::*;
 use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, HttpServerReceiver};
-use shared_bucket::{Customers};
 use wasmcloud_interface_logging::debug;
 
-const CUSTOMERS_ACTORS: &str = "shared_bucket/customers"; //TODO not sure about the prefix here
-const VISITS_ACTOR: &str = "shared_bucket/visits";
-
+const CUSTOMERS_ACTOR: &str = "shared_bucket/customers"; //TODO not sure about the prefix here
+const SERVICE_VENDORS_ACTOR: &str = "shared_bucket/service_vendors"; //TODO not sure about anything here
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor, HttpServer)]
 struct SharedBucketAPIActor {}
 
+/// Util functions
+fn deser<'de, T: Deserialize<'de>>(raw: &'de [u8]) -> RpcResult<T> {
+    serde_json::from_slice(raw).map_err(|e| RpcError::Deser(format!("{}", e)))
+}
+
 /// Implementation of HttpServer trait methods
 #[async_trait]
 impl HttpServer for SharedBucketAPIActor {
-
     async fn handle_request(
         &self,
-        _ctx: &Context,
+        ctx: &Context,
         req: &HttpRequest,
     ) -> std::result::Result<HttpResponse, RpcError> {
         debug!("API request: {:?}", req);
@@ -27,8 +31,21 @@ impl HttpServer for SharedBucketAPIActor {
         debug!("Segments: {:?}", segments);
 
         match (req.method.as_ref(), segments.as_slice()) {
-            ("GET", ["customers", customer_id]) => todo!(),
+            ("POST", ["customers"]) => create_customer(ctx, deser(&req.body)?).await,
             (_, _) => Ok(HttpResponse::not_found()),
-       }
+        }
+    }
+}
+
+async fn create_customer(ctx: &Context, customer: Customer) -> RpcResult<HttpResponse> {
+    let x = CustomersSender::to_actor(CUSTOMERS_ACTOR)
+        .create_customer(ctx, &customer)
+        .await?;
+    if x.success {
+        HttpResponse::json(x, 200)
+    } else {
+        Ok(HttpResponse::internal_server_error(
+            "Failed to create customer",
+        ))
     }
 }
