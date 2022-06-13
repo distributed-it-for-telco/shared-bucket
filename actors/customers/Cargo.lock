@@ -3,6 +3,22 @@
 version = 3
 
 [[package]]
+name = "Customers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "form_urlencoded",
+ "futures 0.3.21",
+ "serde",
+ "serde_json",
+ "shared-bucket",
+ "uuid 1.1.1",
+ "wasmbus-rpc",
+ "wasmcloud-interface-keyvalue",
+ "wasmcloud-interface-logging",
+]
+
+[[package]]
 name = "Inflector"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -460,22 +476,6 @@ dependencies = [
  "rand_core 0.5.1",
  "subtle",
  "zeroize",
-]
-
-[[package]]
-name = "customers"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "form_urlencoded",
- "futures 0.3.21",
- "serde",
- "serde_json",
- "shared-bucket",
- "uuid 1.1.1",
- "wasmbus-rpc",
- "wasmcloud-interface-keyvalue",
- "wasmcloud-interface-logging",
 ]
 
 [[package]]

@@ -4,8 +4,8 @@ use shared_bucket::{
 };
 use uuid::Uuid;
 use wasmbus_rpc::actor::prelude::*;
-use wasmcloud_interface_keyvalue::{KeyValue, KeyValueSender, SetRequest, GetResponse};
-use wasmcloud_interface_logging::{info};
+use wasmcloud_interface_keyvalue::{GetResponse, KeyValue, KeyValueSender, SetRequest};
+use wasmcloud_interface_logging::info;
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor)]
@@ -14,7 +14,7 @@ struct CustomersActor {}
 impl CustomersActor {
     async fn create(ctx: &Context, customer: &Customer) -> anyhow::Result<String> {
         let id = Uuid::new_v4();
-        info!("Creating user with id {}",id); 
+        info!("Creating user with id {}", id);
         let request = SetRequest {
             key: id.to_string(),
             value: serde_json::to_string(customer)?,
@@ -44,9 +44,6 @@ impl CustomersActor {
         //     _ => None //TODO send error
         // }
     }
-
-
-
 }
 
 /// Implementation of Customers trait methods

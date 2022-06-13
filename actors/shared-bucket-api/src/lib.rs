@@ -1,4 +1,4 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use shared_bucket::{Customer, Customers, CustomersSender};
 use wasmbus_rpc::actor::prelude::*;
 use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, HttpServerReceiver};
@@ -29,8 +29,6 @@ impl HttpServer for SharedBucketAPIActor {
         let path = &req.path[1..req.path.len()];
         let segments: Vec<&str> = path.trim_end_matches('/').split('/').collect();
         info!("Segments: {:?}", segments);
-
-        info!("Customer: {:?}", deserialize(&req.body)?);
 
         match (req.method.as_ref(), segments.as_slice()) {
             ("POST", ["customers"]) => create_customer(ctx, deserialize(&req.body)?).await,
