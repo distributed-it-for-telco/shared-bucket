@@ -5,7 +5,6 @@ use wasmcloud_interface_httpserver::{HttpRequest, HttpResponse, HttpServer, Http
 use wasmcloud_interface_logging::info;
 
 const CUSTOMERS_ACTOR: &str = "customers";
-//const SERVICE_VENDORS_ACTOR: &str = "service_vendors";
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor, HttpServer)]
@@ -38,6 +37,7 @@ impl HttpServer for SharedBucketAPIActor {
 }
 
 async fn create_customer(ctx: &Context, customer: Customer) -> RpcResult<HttpResponse> {
+    info!("Customer: {:?}", customer);
     let x = CustomersSender::to_actor(CUSTOMERS_ACTOR)
         .create_customer(ctx, &customer)
         .await?;

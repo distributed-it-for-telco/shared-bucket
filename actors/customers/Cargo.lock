@@ -12,10 +12,10 @@ dependencies = [
  "serde",
  "serde_json",
  "shared-bucket",
- "uuid 1.1.1",
  "wasmbus-rpc",
  "wasmcloud-interface-keyvalue",
  "wasmcloud-interface-logging",
+ "wasmcloud-interface-numbergen",
 ]
 
 [[package]]
@@ -793,10 +793,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9be70c98951c83b8d2f8f60d7065fa6d5146873094452a1008da8c2f1e4205ad"
 dependencies = [
  "cfg-if 1.0.0",
- "js-sys",
  "libc",
  "wasi 0.10.2+wasi-snapshot-preview1",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -2494,15 +2492,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "uuid"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6d5d669b51467dcf7b2f1a796ce0f955f05f01cafda6c19d6e95f730df29238"
-dependencies = [
- "getrandom 0.2.6",
-]
-
-[[package]]
 name = "valuable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2678,7 +2667,7 @@ dependencies = [
  "tracing",
  "tracing-futures",
  "tracing-subscriber",
- "uuid 0.8.2",
+ "uuid",
  "wascap",
  "wasmbus-macros",
  "weld-codegen",
@@ -2707,6 +2696,21 @@ checksum = "e8e006f612a69ff5de663dd3e06a55fe3a3e85cc656ab61e88c78bc0ea7740fe"
 dependencies = [
  "async-trait",
  "cfg-if 1.0.0",
+ "futures 0.3.21",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+ "wasmbus-rpc",
+ "weld-codegen",
+]
+
+[[package]]
+name = "wasmcloud-interface-numbergen"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0fa077ed5190e2c6aa192af4b73f83b340b3f8980f0f552b79c99a84f64008ca"
+dependencies = [
+ "async-trait",
  "futures 0.3.21",
  "serde",
  "serde_bytes",

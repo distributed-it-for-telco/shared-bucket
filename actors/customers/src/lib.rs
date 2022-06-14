@@ -1,8 +1,12 @@
+extern crate core;
+
+//use core::num::fmt::Part::Num;
 use shared_bucket::{
     AddCustomerReply, CreateCustomerGroupReply, CreateCustomerReply, Customer, CustomerGroup,
     CustomerGroups, Customers, FindCustomerReply, ListCustomersReply,
 };
-use uuid::Uuid;
+
+use wasmcloud_interface_numbergen::generate_guid;
 use wasmbus_rpc::actor::prelude::*;
 use wasmcloud_interface_keyvalue::{GetResponse, KeyValue, KeyValueSender, SetRequest};
 use wasmcloud_interface_logging::info;
@@ -13,7 +17,7 @@ struct CustomersActor {}
 
 impl CustomersActor {
     async fn create(ctx: &Context, customer: &Customer) -> anyhow::Result<String> {
-        let id = Uuid::new_v4();
+        let id = generate_guid().await?;
         info!("Creating user with id {}", id);
         let request = SetRequest {
             key: id.to_string(),
