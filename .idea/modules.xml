@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/actors/customers/customers.iml" filepath="$PROJECT_DIR$/actors/customers/customers.iml" />
+      <module fileurl="file://$PROJECT_DIR$/actors/service-vendors/service-vendors.iml" filepath="$PROJECT_DIR$/actors/service-vendors/service-vendors.iml" />
+      <module fileurl="file://$PROJECT_DIR$/interfaces/shared-bucket/shared-bucket.iml" filepath="$PROJECT_DIR$/interfaces/shared-bucket/shared-bucket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/actors/shared-bucket-api/shared-bucket-api.iml" filepath="$PROJECT_DIR$/actors/shared-bucket-api/shared-bucket-api.iml" />
+    </modules>
+  </component>
+</project>
