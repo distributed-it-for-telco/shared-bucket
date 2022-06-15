@@ -1,15 +1,12 @@
-extern crate core;
-
-//use core::num::fmt::Part::Num;
 use shared_bucket::{
     AddCustomerReply, CreateCustomerGroupReply, CreateCustomerReply, Customer, CustomerGroup,
     CustomerGroups, Customers, FindCustomerReply, ListCustomersReply,
 };
 
-use wasmcloud_interface_numbergen::generate_guid;
 use wasmbus_rpc::actor::prelude::*;
 use wasmcloud_interface_keyvalue::{GetResponse, KeyValue, KeyValueSender, SetRequest};
 use wasmcloud_interface_logging::info;
+use wasmcloud_interface_numbergen::generate_guid;
 
 #[derive(Debug, Default, Actor, HealthResponder)]
 #[services(Actor)]
@@ -32,7 +29,6 @@ impl CustomersActor {
 
     async fn find(ctx: &Context, id: String) -> anyhow::Result<Option<Customer>> {
         let customer = KeyValueSender::new().get(ctx, &id).await?;
-
         Ok(if customer.exists {
             Some(serde_json::from_str(&customer.value)?)
         } else {
@@ -40,7 +36,6 @@ impl CustomersActor {
         })
 
         // IDIOMATIC ALTERNATIVE //TODO does not compile :)
-
         // match KeyValueSender::new().get(ctx, &id).await {
         //     Ok(GetResponse { exists: true, value: value } ) => Some(serde_json::from_str(&customer.value)?),
         //     Ok(GetResponse { exists: false, ..} ) => None,
