@@ -5,8 +5,14 @@ use org.wasmcloud.model#wasmbus
 @wasmbus( actorReceive: true )
 service Customers {
   version: "0.1",
-  operations: [ CreateCustomer, FindCustomer ]
+  operations: [ CreateCustomer, FindCustomer, Healthz ]
 }
+
+operation Healthz {
+  input: HealthzRequest,
+  output: HealthzReply
+}
+
 
 operation CreateCustomer {
   input: Customer,
@@ -53,7 +59,7 @@ operation CreateCustomerGroup {
 }
 
 operation AddCustomer {
-  input: String,
+  input: AddCustomerRequest,
   output: AddCustomerReply
 }
 
@@ -65,6 +71,11 @@ operation ListCustomers {
 structure CustomerGroup {
   @required
   name: String,
+  customers: GroupCustomers,
+}
+
+list GroupCustomers {
+  member: String
 }
 
 structure CreateCustomerGroupReply {
@@ -72,10 +83,24 @@ structure CreateCustomerGroupReply {
   success: Boolean,
 }
 
+structure AddCustomerRequest {
+  @required
+  group: String,
+  @required
+  customer: String,
+}
+
 structure AddCustomerReply {
-  customer: Customer
+  success: Boolean
 }
 
 list ListCustomersReply {
   member: Customer
+}
+
+structure HealthzRequest {
+}
+
+structure HealthzReply {
+  success: Boolean
 }

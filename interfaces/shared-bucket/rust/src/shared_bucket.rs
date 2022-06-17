@@ -24,8 +24,8 @@ pub const SMITHY_VERSION: &str = "1.0";
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct AddCustomerReply {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub customer: Option<Customer>,
+    #[serde(default)]
+    pub success: bool,
 }
 
 // Encode AddCustomerReply as CBOR and append to output stream
@@ -39,12 +39,8 @@ where
     <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
 {
     e.map(1)?;
-    if let Some(val) = val.customer.as_ref() {
-        e.str("customer")?;
-        encode_customer(e, val)?;
-    } else {
-        e.null()?;
-    }
+    e.str("success")?;
+    e.bool(val.success)?;
     Ok(())
 }
 
@@ -54,7 +50,7 @@ pub fn decode_add_customer_reply(
     d: &mut wasmbus_rpc::cbor::Decoder<'_>,
 ) -> Result<AddCustomerReply, RpcError> {
     let __result = {
-        let mut customer: Option<Option<Customer>> = Some(None);
+        let mut success: Option<bool> = None;
 
         let is_array = match d.datatype()? {
             wasmbus_rpc::cbor::Type::Array => true,
@@ -69,17 +65,7 @@ pub fn decode_add_customer_reply(
             let len = d.fixed_array()?;
             for __i in 0..(len as usize) {
                 match __i {
-                    0 => {
-                        customer = if wasmbus_rpc::cbor::Type::Null == d.datatype()? {
-                            d.skip()?;
-                            Some(None)
-                        } else {
-                            Some(Some(decode_customer(d).map_err(|e| {
-                                format!("decoding 'com.orange.sharedbucket#Customer': {}", e)
-                            })?))
-                        }
-                    }
-
+                    0 => success = Some(d.bool()?),
                     _ => d.skip()?,
                 }
             }
@@ -87,22 +73,102 @@ pub fn decode_add_customer_reply(
             let len = d.fixed_map()?;
             for __i in 0..(len as usize) {
                 match d.str()? {
-                    "customer" => {
-                        customer = if wasmbus_rpc::cbor::Type::Null == d.datatype()? {
-                            d.skip()?;
-                            Some(None)
-                        } else {
-                            Some(Some(decode_customer(d).map_err(|e| {
-                                format!("decoding 'com.orange.sharedbucket#Customer': {}", e)
-                            })?))
-                        }
-                    }
+                    "success" => success = Some(d.bool()?),
                     _ => d.skip()?,
                 }
             }
         }
         AddCustomerReply {
-            customer: customer.unwrap(),
+            success: if let Some(__x) = success {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field AddCustomerReply.success (#0)".to_string(),
+                ));
+            },
+        }
+    };
+    Ok(__result)
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct AddCustomerRequest {
+    #[serde(default)]
+    pub customer: String,
+    #[serde(default)]
+    pub group: String,
+}
+
+// Encode AddCustomerRequest as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_add_customer_request<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &AddCustomerRequest,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(2)?;
+    e.str("customer")?;
+    e.str(&val.customer)?;
+    e.str("group")?;
+    e.str(&val.group)?;
+    Ok(())
+}
+
+// Decode AddCustomerRequest from cbor input stream
+#[doc(hidden)]
+pub fn decode_add_customer_request(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<AddCustomerRequest, RpcError> {
+    let __result = {
+        let mut customer: Option<String> = None;
+        let mut group: Option<String> = None;
+
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct AddCustomerRequest, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                match __i {
+                    0 => customer = Some(d.str()?.to_string()),
+                    1 => group = Some(d.str()?.to_string()),
+                    _ => d.skip()?,
+                }
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                match d.str()? {
+                    "customer" => customer = Some(d.str()?.to_string()),
+                    "group" => group = Some(d.str()?.to_string()),
+                    _ => d.skip()?,
+                }
+            }
+        }
+        AddCustomerRequest {
+            customer: if let Some(__x) = customer {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field AddCustomerRequest.customer (#0)".to_string(),
+                ));
+            },
+
+            group: if let Some(__x) = group {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field AddCustomerRequest.group (#1)".to_string(),
+                ));
+            },
         }
     };
     Ok(__result)
@@ -475,6 +541,8 @@ pub fn decode_customer(d: &mut wasmbus_rpc::cbor::Decoder<'_>) -> Result<Custome
 }
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct CustomerGroup {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub customers: Option<GroupCustomers>,
     #[serde(default)]
     pub name: String,
 }
@@ -489,7 +557,13 @@ pub fn encode_customer_group<W: wasmbus_rpc::cbor::Write>(
 where
     <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
 {
-    e.map(1)?;
+    e.map(2)?;
+    if let Some(val) = val.customers.as_ref() {
+        e.str("customers")?;
+        encode_group_customers(e, val)?;
+    } else {
+        e.null()?;
+    }
     e.str("name")?;
     e.str(&val.name)?;
     Ok(())
@@ -501,6 +575,7 @@ pub fn decode_customer_group(
     d: &mut wasmbus_rpc::cbor::Decoder<'_>,
 ) -> Result<CustomerGroup, RpcError> {
     let __result = {
+        let mut customers: Option<Option<GroupCustomers>> = Some(None);
         let mut name: Option<String> = None;
 
         let is_array = match d.datatype()? {
@@ -516,7 +591,17 @@ pub fn decode_customer_group(
             let len = d.fixed_array()?;
             for __i in 0..(len as usize) {
                 match __i {
-                    0 => name = Some(d.str()?.to_string()),
+                    0 => {
+                        customers = if wasmbus_rpc::cbor::Type::Null == d.datatype()? {
+                            d.skip()?;
+                            Some(None)
+                        } else {
+                            Some(Some(decode_group_customers(d).map_err(|e| {
+                                format!("decoding 'com.orange.sharedbucket#GroupCustomers': {}", e)
+                            })?))
+                        }
+                    }
+                    1 => name = Some(d.str()?.to_string()),
                     _ => d.skip()?,
                 }
             }
@@ -524,17 +609,29 @@ pub fn decode_customer_group(
             let len = d.fixed_map()?;
             for __i in 0..(len as usize) {
                 match d.str()? {
+                    "customers" => {
+                        customers = if wasmbus_rpc::cbor::Type::Null == d.datatype()? {
+                            d.skip()?;
+                            Some(None)
+                        } else {
+                            Some(Some(decode_group_customers(d).map_err(|e| {
+                                format!("decoding 'com.orange.sharedbucket#GroupCustomers': {}", e)
+                            })?))
+                        }
+                    }
                     "name" => name = Some(d.str()?.to_string()),
                     _ => d.skip()?,
                 }
             }
         }
         CustomerGroup {
+            customers: customers.unwrap(),
+
             name: if let Some(__x) = name {
                 __x
             } else {
                 return Err(RpcError::Deser(
-                    "missing field CustomerGroup.name (#0)".to_string(),
+                    "missing field CustomerGroup.name (#1)".to_string(),
                 ));
             },
         }
@@ -623,6 +720,168 @@ pub fn decode_find_customer_reply(
         FindCustomerReply {
             customer: customer.unwrap(),
         }
+    };
+    Ok(__result)
+}
+pub type GroupCustomers = Vec<String>;
+
+// Encode GroupCustomers as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_group_customers<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &GroupCustomers,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.array(val.len() as u64)?;
+    for item in val.iter() {
+        e.str(item)?;
+    }
+    Ok(())
+}
+
+// Decode GroupCustomers from cbor input stream
+#[doc(hidden)]
+pub fn decode_group_customers(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<GroupCustomers, RpcError> {
+    let __result = {
+        if let Some(n) = d.array()? {
+            let mut arr: Vec<String> = Vec::with_capacity(n as usize);
+            for _ in 0..(n as usize) {
+                arr.push(d.str()?.to_string())
+            }
+            arr
+        } else {
+            // indefinite array
+            let mut arr: Vec<String> = Vec::new();
+            loop {
+                match d.datatype() {
+                    Err(_) => break,
+                    Ok(wasmbus_rpc::cbor::Type::Break) => break,
+                    Ok(_) => arr.push(d.str()?.to_string()),
+                }
+            }
+            arr
+        }
+    };
+    Ok(__result)
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct HealthzReply {
+    #[serde(default)]
+    pub success: bool,
+}
+
+// Encode HealthzReply as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_healthz_reply<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    val: &HealthzReply,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(1)?;
+    e.str("success")?;
+    e.bool(val.success)?;
+    Ok(())
+}
+
+// Decode HealthzReply from cbor input stream
+#[doc(hidden)]
+pub fn decode_healthz_reply(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<HealthzReply, RpcError> {
+    let __result = {
+        let mut success: Option<bool> = None;
+
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct HealthzReply, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                match __i {
+                    0 => success = Some(d.bool()?),
+                    _ => d.skip()?,
+                }
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                match d.str()? {
+                    "success" => success = Some(d.bool()?),
+                    _ => d.skip()?,
+                }
+            }
+        }
+        HealthzReply {
+            success: if let Some(__x) = success {
+                __x
+            } else {
+                return Err(RpcError::Deser(
+                    "missing field HealthzReply.success (#0)".to_string(),
+                ));
+            },
+        }
+    };
+    Ok(__result)
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+pub struct HealthzRequest {}
+
+// Encode HealthzRequest as CBOR and append to output stream
+#[doc(hidden)]
+#[allow(unused_mut)]
+pub fn encode_healthz_request<W: wasmbus_rpc::cbor::Write>(
+    mut e: &mut wasmbus_rpc::cbor::Encoder<W>,
+    _val: &HealthzRequest,
+) -> RpcResult<()>
+where
+    <W as wasmbus_rpc::cbor::Write>::Error: std::fmt::Display,
+{
+    e.map(0)?;
+    Ok(())
+}
+
+// Decode HealthzRequest from cbor input stream
+#[doc(hidden)]
+pub fn decode_healthz_request(
+    d: &mut wasmbus_rpc::cbor::Decoder<'_>,
+) -> Result<HealthzRequest, RpcError> {
+    let __result = {
+        let is_array = match d.datatype()? {
+            wasmbus_rpc::cbor::Type::Array => true,
+            wasmbus_rpc::cbor::Type::Map => false,
+            _ => {
+                return Err(RpcError::Deser(
+                    "decoding struct HealthzRequest, expected array or map".to_string(),
+                ))
+            }
+        };
+        if is_array {
+            let len = d.fixed_array()?;
+            for __i in 0..(len as usize) {
+                d.skip()?;
+            }
+        } else {
+            let len = d.fixed_map()?;
+            for __i in 0..(len as usize) {
+                d.str()?;
+                d.skip()?;
+            }
+        }
+        HealthzRequest {}
     };
     Ok(__result)
 }
@@ -929,10 +1188,10 @@ pub trait CustomerGroups {
         ctx: &Context,
         arg: &CustomerGroup,
     ) -> RpcResult<CreateCustomerGroupReply>;
-    async fn add_customer<TS: ToString + ?Sized + std::marker::Sync>(
+    async fn add_customer(
         &self,
         ctx: &Context,
-        arg: &TS,
+        arg: &AddCustomerRequest,
     ) -> RpcResult<AddCustomerReply>;
     async fn list_customers<TS: ToString + ?Sized + std::marker::Sync>(
         &self,
@@ -964,8 +1223,8 @@ pub trait CustomerGroupsReceiver: MessageDispatch + CustomerGroups {
                 })
             }
             "AddCustomer" => {
-                let value: String = wasmbus_rpc::common::deserialize(&message.arg)
-                    .map_err(|e| RpcError::Deser(format!("'String': {}", e)))?;
+                let value: AddCustomerRequest = wasmbus_rpc::common::deserialize(&message.arg)
+                    .map_err(|e| RpcError::Deser(format!("'AddCustomerRequest': {}", e)))?;
 
                 let resp = CustomerGroups::add_customer(self, ctx, &value).await?;
                 let buf = wasmbus_rpc::common::serialize(&resp)?;
@@ -1062,12 +1321,12 @@ impl<T: Transport + std::marker::Sync + std::marker::Send> CustomerGroups
         Ok(value)
     }
     #[allow(unused)]
-    async fn add_customer<TS: ToString + ?Sized + std::marker::Sync>(
+    async fn add_customer(
         &self,
         ctx: &Context,
-        arg: &TS,
+        arg: &AddCustomerRequest,
     ) -> RpcResult<AddCustomerReply> {
-        let buf = wasmbus_rpc::common::serialize(&arg.to_string())?;
+        let buf = wasmbus_rpc::common::serialize(arg)?;
 
         let resp = self
             .transport
@@ -1125,6 +1384,7 @@ pub trait Customers {
         ctx: &Context,
         arg: &TS,
     ) -> RpcResult<FindCustomerReply>;
+    async fn healthz(&self, ctx: &Context, arg: &HealthzRequest) -> RpcResult<HealthzReply>;
 }
 
 /// CustomersReceiver receives messages defined in the Customers service trait
@@ -1159,6 +1419,18 @@ pub trait CustomersReceiver: MessageDispatch + Customers {
 
                 Ok(Message {
                     method: "Customers.FindCustomer",
+                    arg: Cow::Owned(buf),
+                })
+            }
+            "Healthz" => {
+                let value: HealthzRequest = wasmbus_rpc::common::deserialize(&message.arg)
+                    .map_err(|e| RpcError::Deser(format!("'HealthzRequest': {}", e)))?;
+
+                let resp = Customers::healthz(self, ctx, &value).await?;
+                let buf = wasmbus_rpc::common::serialize(&resp)?;
+
+                Ok(Message {
+                    method: "Customers.Healthz",
                     arg: Cow::Owned(buf),
                 })
             }
@@ -1257,6 +1529,26 @@ impl<T: Transport + std::marker::Sync + std::marker::Send> Customers for Custome
 
         let value: FindCustomerReply = wasmbus_rpc::common::deserialize(&resp)
             .map_err(|e| RpcError::Deser(format!("'{}': FindCustomerReply", e)))?;
+        Ok(value)
+    }
+    #[allow(unused)]
+    async fn healthz(&self, ctx: &Context, arg: &HealthzRequest) -> RpcResult<HealthzReply> {
+        let buf = wasmbus_rpc::common::serialize(arg)?;
+
+        let resp = self
+            .transport
+            .send(
+                ctx,
+                Message {
+                    method: "Customers.Healthz",
+                    arg: Cow::Borrowed(&buf),
+                },
+                None,
+            )
+            .await?;
+
+        let value: HealthzReply = wasmbus_rpc::common::deserialize(&resp)
+            .map_err(|e| RpcError::Deser(format!("'{}': HealthzReply", e)))?;
         Ok(value)
     }
 }
